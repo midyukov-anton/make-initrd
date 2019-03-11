@@ -5,12 +5,12 @@
 . /.initrd/initenv
 . uevent-sh-functions
 
+message_time=1
+
 glob()
 {
 	[ -e "$1" ]
 }
-
-message "STARTING ..."
 
 mv -f -- "$filterdir"/* "$eventdir"/ 2>/dev/null ||:
 
@@ -24,7 +24,7 @@ for fn in "$handlerdir"/*; do
 	glob "$eventdir/$name".* ||
 		continue
 
-	verbose "Running $name handler ..."
+	message "Running $name handler ..."
 	"$fn" || message "Event handler failed: $name"
 done
 

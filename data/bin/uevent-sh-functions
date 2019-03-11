@@ -1,5 +1,8 @@
 #!/bin/sh
 
+if [ -z "${__uevent_sh_functions-}" ]; then
+__uevent_sh_functions=1
+
 . shell-error
 
 ueventd_pid=
@@ -61,3 +64,5 @@ have_mountpoints()
 		fi
 	done < /etc/fstab
 }
+
+fi
