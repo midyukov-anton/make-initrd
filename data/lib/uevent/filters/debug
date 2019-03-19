@@ -1,6 +1,5 @@
 #!/bin/sh -efu
 
-. /.initrd/initenv
 . uevent-sh-functions
 . initrd-sh-functions
 

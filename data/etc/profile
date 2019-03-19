@@ -5,3 +5,11 @@ HOME='/home/root'
 export PATH PS1 USER HOME
 
 umask 022
+
+printf '%s\n' \
+ "If you are here that something went wrong. If so, it's important to remember:" \
+ "- /.initrd/udev-events -- contains all udev events for block and network devices." \
+ "- /.initrd/uevent-udev -- ueventd incoming queue filled by udevd rules." \
+ "- /.initrd/uevent-events -- uevent handlers incoming queue." \
+ "- /var/log/uevent.log -- contains log of the execution of handlers." \
+ "- /var/log/udhcp{4|6}.<iface>.log -- contains DHCP logs."
