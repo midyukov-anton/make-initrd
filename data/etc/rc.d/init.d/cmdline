@@ -143,17 +143,6 @@ __set_var()
 	fi
 }
 
-ignored()
-{
-	case "$1" in
-		INITLOG_FILE|RUNLEVEL|runlevel|PWD|SHLVL)
-			return 0 ;;
-		_*)
-			return 0 ;;
-	esac
-	return 1
-}
-
 parse()
 {
 	local x __vars=' ' __aliases=' ' CMDLINE_PARAMS=''
@@ -191,12 +180,7 @@ parse()
 
 	{
 		echo __initrd_initenv=1
-		showenv -q |
-		while read -r l; do
-			s="${l%%=*}"
-			[ -z "${s##*[!A-Za-z0-9_]*}" ] || ignored "$s" ||
-				printf 'export %s\n' "$l"
-		done
+		environ -q -s -p 'export ' -u '_*,INITLOG_FILE,RUNLEVEL,runlevel,PWD,SHLVL'
 	} > /.initrd/initenv
 }
 
