@@ -21,7 +21,7 @@
 #include "uevent-logging.h"
 #include "uevent-pidfile.h"
 #include "uevent-epoll.h"
-#include "uevent-worker.h"
+#include "uevent-handler.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #define DEFAULT_TIMEOUT 1
@@ -29,7 +29,7 @@
 int fd_ep        = -1;
 int fd_signal    = -1;
 int fd_eventdir  = -1;
-pid_t worker_pid = 0;
+pid_t handler_pid = 0;
 
 struct timespec last, now;
 
@@ -59,9 +59,9 @@ handle_signal(uint32_t signo)
 				if ((pid = waitpid(-1, &status, 0)) < 0)
 					break;
 
-				if (pid == worker_pid) {
-					dbg("Worker %d exit = %d", pid, WEXITSTATUS(status));
-					worker_pid = 0;
+				if (pid == handler_pid) {
+					dbg("handler %d exit = %d", pid, WEXITSTATUS(status));
+					handler_pid = 0;
 
 					if (clock_gettime(CLOCK_MONOTONIC, &now) < 0)
 						fatal("clock_gettime: %m");
@@ -327,7 +327,7 @@ main(int argc, char **argv)
 			mtime.tv_nsec = sb.st_mtim.tv_nsec;
 		}
 
-		if (worker_pid)
+		if (handler_pid)
 			continue;
 
 		if (!ignore_timer) {
@@ -339,10 +339,10 @@ main(int argc, char **argv)
 		}
 		ignore_timer = 0;
 
-		if ((worker_pid = spawn_worker(prog, prog_args)) < 0)
-			fatal("spawn_worker: %m");
+		if ((handler_pid = spawn_handler(prog, prog_args)) < 0)
+			fatal("spawn_handler: %m");
 
-		dbg("Run worker %d", worker_pid);
+		dbg("Run handler %d", handler_pid);
 	}
 
 	epollin_remove(fd_ep, fd_signal);

@@ -20,7 +20,7 @@ sbin_PROGS = \
 	$(out_sbindir)/ueventd \
 	$(out_sbindir)/monotonic-timestamp
 
-ueventd_SRCS = ueventd.c uevent-epoll.c uevent-logging.c uevent-pidfile.c uevent-worker.c
+ueventd_SRCS = ueventd.c uevent-epoll.c uevent-logging.c uevent-pidfile.c uevent-handler.c
 monotonic_timestamp_SRCS = monotonic-timestamp.c
 halt_SRCS = halt.c
 replace_SRCS = replace.c

@@ -2,10 +2,10 @@
 #include <unistd.h>
 
 #include "uevent-logging.h"
-#include "uevent-worker.h"
+#include "uevent-handler.h"
 
 pid_t
-spawn_worker(char *path, char **argv)
+spawn_handler(char *path, char **argv)
 {
 	pid_t pid;
 
