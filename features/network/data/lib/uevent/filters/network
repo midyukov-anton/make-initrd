@@ -8,4 +8,4 @@ case "$ACTION" in
 	remove) ev_action='remove' ;;
 esac
 
-net_event "network.config.$ev_action" "$INTERFACE"
+net_event "$INTERFACE" "config" "$ev_action"

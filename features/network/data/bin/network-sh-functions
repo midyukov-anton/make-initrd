@@ -22,9 +22,14 @@ ip_cmd()
 net_event()
 {
 	local event
-	event="$(make_event)"
-	printf '%s\n' "NET_IF=$2" > "$event"
-	release_event "$1" "$event"
+	event="$(make_event "network.$1")"
+	(
+		export NET_IF="$1"
+		export NET_EV_TYPE="$2"
+		export NET_EV_ACTION="$3"
+		environ -q -i 'NET_*'
+	) > "$event"
+	release_event network "$event"
 }
 
 cat_config()

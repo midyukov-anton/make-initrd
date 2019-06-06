@@ -33,7 +33,7 @@ update()
 		return $rc
 
 	message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.addr.updated"
-	net_event "network.addr.updated" "$NET_IF"
+	net_event "$NET_IF" "addr" "updated"
 }
 
 remove()
@@ -50,7 +50,7 @@ remove()
 		return $rc
 
 	message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.addr.removed"
-	net_event "network.addr.removed" "$NET_IF"
+	net_event "$NET_IF" "addr" "removed"
 }
 
 case "$NET_EV_ACTION" in

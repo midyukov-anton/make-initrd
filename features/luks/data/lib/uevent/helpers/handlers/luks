@@ -140,17 +140,7 @@ done
 
 exec 0</dev/console >/dev/console 2>&1
 
-rc=0
-for e in "$eventdir"/luks.*; do
-	[ -f "$e" ] || break
-	r=0
-	( . "$e"; handler; ) || r="$?"
-	case "$r" in
-		2) ;;
-		1) rc=1 ;;
-		0) done_event "$e" ;;
-	esac
-done
+handler &&
+	done_event "$BASEDIR/$QUEUE/$EVENTNAME" ||:
 
 console_unlock
-exit $rc

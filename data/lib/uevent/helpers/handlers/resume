@@ -15,9 +15,5 @@ handler() {
 	return 0
 }
 
-for e in "$eventdir"/resume.*; do
-	[ -f "$e" ] || break
-	# Ignore the return code to continue normal boot
-	( . "$e"; handler; ) ||:
-	done_event "$e"
-done
+handler ||:
+done_event "$BASEDIR/$QUEUE/$EVENTNAME"

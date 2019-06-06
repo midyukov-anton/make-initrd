@@ -7,27 +7,28 @@ __uevent_sh_functions=1
 
 ueventd_pid=
 debugdir='/.initrd/udev-events'
-filterdir='/.initrd/uevent-udev'
-eventdir='/.initrd/uevent-events'
+eventdir='/.initrd/uevent/queues'
 extendir='/lib/uevent/extenders'
 handlerdir='/lib/uevent/handlers'
 
 make_event() {
-	mktemp "$filterdir/.tmp/.XXXXXXXXX"
-}
-
-publish_event() {
-	mv -f -- "$2" "${2%/.tmp/*}/$1"
+	local d="$eventdir/${1:-udev}"
+	[ -d "$d/.tmp" ] ||
+		mkdir -p -- "$d/.tmp"
+	mktemp "$d/.tmp/.XXXXXXXXX"
 }
 
 release_event() {
 	local num='' dummy
 	[ ! -e /proc/uptime ] || read -r num dummy < /proc/uptime ||:
-	publish_event "$1.${num:-0.0}${2##*/}" "$2"
+	mv -f -- "$2" "${2%/.tmp/*}/$1.${num:-0.0}${2##*/}"
 }
 
 done_event() {
-	mv -f -- "$1" "${1%/*}/done.${1##*/}"
+	local d="${1%/*}"
+	[ -d "$d/.done" ] ||
+		mkdir -p -- "$d/.done"
+	mv -f -- "$1" "$d/.done"
 }
 
 have_rootfs()

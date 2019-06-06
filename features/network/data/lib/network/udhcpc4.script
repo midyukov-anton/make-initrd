@@ -106,17 +106,17 @@ gen_net_event()
 		return 0
 	fi
 	mv -f -- "$1$suffix" "$1"
-	net_event "$2" "$INTERFACE"
+	net_event "$INTERFACE" "$2" "$3"
 }
 
 case "$STATE" in
 	renew)
 		env_to_configs
-		gen_net_event "$dir/iplink" "network.link.update"
-		gen_net_event "$dir/ipv${V}address" "network.addr.update"
-		gen_net_event "$dir/ipv${V}route" "network.route.update"
-		gen_net_event "$dir/resolv.conf" "network.resolvconf.update"
-		gen_net_event "$dir/hostname" "network.hostname.update"
+		gen_net_event "$dir/iplink" "link" "update"
+		gen_net_event "$dir/ipv${V}address" "addr" "update"
+		gen_net_event "$dir/ipv${V}route" "route" "update"
+		gen_net_event "$dir/resolv.conf" "resolvconf" "update"
+		gen_net_event "$dir/hostname" "hostname" "update"
 		mkdir -p -- "$statedir"
 		echo ready > "$state"
 		;;

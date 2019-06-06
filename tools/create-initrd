@@ -6,8 +6,6 @@ cd "$rootdir"
 
 mkdir $verbose -p -- \
 	./.initrd/killall \
-	./.initrd/uevent-events \
-	./.initrd/uevent-udev/.tmp \
 	./dev \
 	./etc/initrd \
 	./etc/modprobe.d \

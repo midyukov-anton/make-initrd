@@ -36,7 +36,8 @@ fi
 [ -n "$devluks" ] ||
 	exit 0
 
+export LUKS_ROOT="$devluks"
+
 event="$(make_event)"
 environ -q > "$event"
-echo "LUKS_ROOT='$devluks'" >> "$event"
 release_event luks "$event"

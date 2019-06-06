@@ -28,12 +28,5 @@ handler() {
 		return 1
 }
 
-rc=0
-for e in "$eventdir"/nfsroot.*; do
-	[ -f "$e" ] || break
-	( . "$e"; handler; ) ||
-		rc=1
-	done_event "$e"
-done
-
-exit $rc
+handler ||:
+done_event "$BASEDIR/$QUEUE/$EVENTNAME"

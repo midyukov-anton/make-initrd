@@ -14,5 +14,5 @@ message_time=1
 
 for n in $net_event_list; do
 	message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.$n.$NET_EV_ACTION"
-	net_event "network.$n.$NET_EV_ACTION" "$NET_IF"
+	net_event "$NET_IF" "$n" "$NET_EV_ACTION"
 done

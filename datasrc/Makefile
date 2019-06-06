@@ -1,12 +1,13 @@
 TOPDIR = $(CURDIR)/..
+null =
 
 out_bindir  = _out/bin
 out_sbindir = _out/sbin
 
+UEVENTD_WITH_LUA ?= 1
+
 CFLAGS = $(warning_CFLAGS) \
-	-DPACKAGE=\"$@\" -DVERSION=\"$(VERSION)\" \
-	-DPROGRAM_NAME=\"$(notdir $(PROG))\" \
-	-D_GNU_SOURCE=1
+	-DPACKAGE=\"$@\" -DVERSION=\"$(VERSION)\"
 
 CFLAGS += -I.
 CFLAGS += -Os
@@ -20,7 +21,25 @@ sbin_PROGS = \
 	$(out_sbindir)/ueventd \
 	$(out_sbindir)/monotonic-timestamp
 
-ueventd_SRCS = ueventd.c uevent-epoll.c uevent-logging.c uevent-pidfile.c uevent-handler.c
+ueventd_SRCS = \
+	ueventd.events.c \
+	ueventd.events.sh.c \
+	ueventd.logging.c \
+	ueventd.main.c \
+	ueventd.memory.c \
+	ueventd.pidfile.c \
+	ueventd.pool.c \
+	ueventd.queue.c \
+	$(null)
+
+ueventd_LIBS =
+
+ifneq "$(UEVENTD_WITH_LUA)" ''
+	ueventd_SRCS += ueventd.events.lua.c
+	ueventd_LIBS += $(shell pkg-config --libs lua)
+	CFLAGS       += $(shell pkg-config --cflags lua) -DWITH_LUA
+endif
+
 monotonic_timestamp_SRCS = monotonic-timestamp.c
 halt_SRCS = halt.c
 replace_SRCS = replace.c
@@ -41,7 +60,7 @@ prepare:
 	$(MKDIR_P) -- $(out_sbindir)
 
 $(out_sbindir)/ueventd: prepare $(call get_objects,ueventd)
-	$(LINK) $(realpath $^) -o $@
+	$(LINK) $(realpath $^) -o $@ $(ueventd_LIBS)
 
 $(out_sbindir)/monotonic-timestamp: prepare $(call get_objects,monotonic_timestamp)
 	$(LINK) $(realpath $^) -o $@

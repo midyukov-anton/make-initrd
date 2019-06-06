@@ -8,5 +8,6 @@ devresume=
 get_dev devresume "${RESUME-}" ||
 	exit 0
 event="$(make_event)"
-echo "INIT_RESUME='$devresume'" > "$event"
+export INIT_RESUME="$devresume"
+environ -q -i 'INIT_RESUME' > "$event"
 release_event resume "$event"

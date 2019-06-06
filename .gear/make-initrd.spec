@@ -16,6 +16,7 @@ BuildRequires: zlib-devel
 BuildRequires: bzlib-devel
 BuildRequires: liblzma-devel
 BuildRequires: libzstd-devel
+BuildRequires: liblua5.3-devel
 
 Provides: make-initrd(crc32c) = 1
 

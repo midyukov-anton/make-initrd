@@ -16,12 +16,11 @@ extern char **environ;
 static char *prefix = (char *) "";
 static char *quote = (char *) "";
 static unsigned int shell = 0;
-static char *unset = NULL;
 
 static void __attribute__ ((noreturn))
 show_usage(int ret)
 {
-	fprintf(stderr, "Usage: environ [-c|-q|-s|-h] [-p PREFIX] [-u unset0,unset1,...] [-f filename] [command [arg]...]\n");
+	fprintf(stderr, "Usage: environ [-c|-q|-s|-h] [-p PREFIX] [-i include0,include1,...] [-u unset0,unset1,...] [-f filename] [command [arg]...]\n");
 	exit(ret);
 }
 
@@ -168,15 +167,16 @@ set_environ(const char *fname)
 }
 
 static void
-unset_environ(char **envp)
+unset_environ(char **envp, char *patterns, int invert_match)
 {
 	size_t j, env_sz = 0;
 	char *pattern, *next, *s, **e, *env;
+	int rc;
 
-	if (!unset)
+	if (!patterns)
 		return;
 
-	pattern = s = unset;
+	pattern = s = patterns;
 	next = env = NULL;
 
 	while (pattern) {
@@ -217,8 +217,11 @@ unset_environ(char **envp)
 			strncpy(env, *e, j);
 			env[j] = '\0';
 
-			if (!fnmatch(pattern, env, 0))
+			rc = fnmatch(pattern, env, 0);
+
+			if ((!rc && !invert_match) || (rc && invert_match))
 				unsetenv(env);
+
 			e--;
 		}
 
@@ -231,9 +234,11 @@ unset_environ(char **envp)
 int
 main(int argc, char *argv[])
 {
+	char *only = NULL;
+	char *unset = NULL;
 	int o;
 
-	while ((o = getopt(argc, argv, "cf:hp:qsu:")) != -1) {
+	while ((o = getopt(argc, argv, "cf:hp:qsi:u:")) != -1) {
 		switch (o) {
 			case 'c':
 				clearenv();
@@ -250,6 +255,9 @@ main(int argc, char *argv[])
 			case 's':
 				shell = 1;
 				break;
+			case 'i':
+				only = optarg;
+				break;
 			case 'u':
 				unset = optarg;
 				break;
@@ -260,8 +268,11 @@ main(int argc, char *argv[])
 		}
 	}
 
+	if (only)
+		unset_environ(environ, only, 1);
+
 	if (unset)
-		unset_environ(environ);
+		unset_environ(environ, unset, 0);
 
 	if (optind < argc) {
 		execvp(argv[optind], argv + optind);

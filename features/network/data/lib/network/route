@@ -116,7 +116,7 @@ update()
 		return $rc
 
 	message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.route.updated"
-	net_event "network.route.updated" "$NET_IF"
+	net_event "$NET_IF" "route" "updated"
 }
 
 remove()
@@ -132,7 +132,7 @@ remove()
 		return $rc
 
 	message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.route.removed"
-	net_event "network.route.removed" "$NET_IF"
+	net_event "$NET_IF" "route" "removed"
 }
 
 ! is_loopback "$NET_IF" ||

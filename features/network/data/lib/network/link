@@ -25,7 +25,7 @@ update()
 
 	if wait_for_link_up "$NET_IF"; then
 		message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.link.updated"
-		net_event "network.link.updated" "$NET_IF"
+		net_event "$NET_IF" "link" "updated"
 	fi
 }
 
@@ -37,7 +37,7 @@ remove()
 	del_iface_state "$NET_IF" "iplink"
 
 	message "create event: network.$NET_EV_TYPE.$NET_EV_ACTION -> network.link.removed"
-	net_event "network.link.removed" "$NET_IF"
+	net_event "$NET_IF" "link" "removed"
 }
 
 case "$NET_EV_ACTION" in

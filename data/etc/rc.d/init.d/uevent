@@ -2,7 +2,7 @@
 ### BEGIN INIT INFO
 # Provides:            uevent
 # Required-Start:      cmdline fstab mountvirtfs
-# Should-Start:        $syslog
+# Should-Start:        $syslog udev
 # Required-Stop:
 # Should-Stop:
 # Default-Start:       3 4 5
@@ -12,7 +12,6 @@
 ### END INIT INFO
 
 . /etc/init.d/template
-. uevent-sh-functions
 
 NAME=ueventd
 PIDFILE=/var/run/$NAME.pid
@@ -24,7 +23,7 @@ start() {
 		    ${RDUEVENT_TIMEOUT:+--timeout=$RDUEVENT_TIMEOUT} \
 		    --pidfile "$PIDFILE" \
 		    --logfile "/var/log/$NAME.log" \
-		    "$filterdir" /sbin/uevent-handler
+		    -L debug
 	RETVAL=$?
 	return $RETVAL
 }

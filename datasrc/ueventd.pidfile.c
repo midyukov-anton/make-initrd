@@ -32,8 +32,7 @@
 #include <errno.h>
 #include <signal.h>
 
-#include "uevent-pidfile.h"
-#include "uevent-logging.h"
+#include "ueventd.h"
 
 /* read_pid
  *

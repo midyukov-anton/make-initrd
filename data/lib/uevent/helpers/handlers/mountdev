@@ -5,6 +5,9 @@
 
 message_time=1
 
+roflag=-w
+[ -z "$READONLY" ] || roflag=-r
+
 handler() {
 	[ -d "$MOUNTPOINT" ] ||
 		return 1
@@ -13,10 +16,5 @@ handler() {
 		return 1
 }
 
-roflag=-w
-[ -z "$READONLY" ] || roflag=-r
-
-for e in "$eventdir"/mountdev.*; do
-	[ -e "$e" ] || break
-	( . "$e"; handler; ) && done_event "$e" ||:
-done
+handler &&
+	done_event "$BASEDIR/$QUEUE/$EVENTNAME" ||:
