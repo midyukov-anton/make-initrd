@@ -6,6 +6,7 @@ cd "$rootdir"
 
 mkdir $verbose -p -- \
 	./.initrd/killall \
+	./.initrd/uevent/queues \
 	./dev \
 	./etc/initrd \
 	./etc/modprobe.d \
