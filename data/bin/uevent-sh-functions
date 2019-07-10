@@ -8,7 +8,6 @@ __uevent_sh_functions=1
 ueventd_pid=
 debugdir='/.initrd/udev-events'
 eventdir='/.initrd/uevent/queues'
-extendir='/lib/uevent/extenders'
 handlerdir='/lib/uevent/handlers'
 
 make_event() {

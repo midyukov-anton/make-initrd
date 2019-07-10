@@ -262,7 +262,7 @@ read_rules(const char *rulesdir, struct rules **rules)
 	}
 
 	for (i = 0; i < n; i++) {
-		snprintf(g_buf, PATH_MAX - 1, "%s/%s", rulesdir, namelist[i]->d_name);
+		xconcat(g_buf, sizeof(g_buf), rulesdir, "/", namelist[i]->d_name, NULL);
 
 		struct rules *r = xmalloc(sizeof(struct rules));
 		r->type = get_handler_type(g_buf);
@@ -473,6 +473,11 @@ main(int argc, char **argv)
 
 			if (process_events(basedir, &(queues->dirs[i]), rules) < 0)
 				goto exit_failure;
+
+			xconcat(g_buf, sizeof(g_buf), basedir, "/", queues->dirs[i].name, "/.dirty", NULL);
+
+			if (!access(g_buf, F_OK))
+				queues->dirs[i].dirty = 1;
 		}
 	}
 

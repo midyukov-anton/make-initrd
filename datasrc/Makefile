@@ -7,6 +7,7 @@ out_sbindir = _out/sbin
 UEVENTD_WITH_LUA ?= 1
 
 CFLAGS = $(warning_CFLAGS) \
+	-D_FORTIFY_SOURCE=2 \
 	-DPACKAGE=\"$@\" -DVERSION=\"$(VERSION)\"
 
 CFLAGS += -I.

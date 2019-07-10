@@ -14,6 +14,7 @@ char *xstrdup(const char *s);
 char *xasprintf(char **ptr, const char *fmt, ...)
 	__attribute__ ((__format__(__printf__, 2, 3)))
 	__attribute__ ((__nonnull__(2)));
+char *xconcat(char *var, size_t sz, ...);
 
 /* ueventd.pool.c */
 

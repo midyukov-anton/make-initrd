@@ -226,7 +226,7 @@ process_events(const char *basedir, struct queue *queue, struct rules *rules)
 	ssize_t i, n;
 	struct rules *r, *nr;
 
-	snprintf(g_buf, sizeof(g_buf) - 1, "%s/%s", basedir, queue->name);
+	xconcat(g_buf, sizeof(g_buf), basedir, "/", queue->name, NULL);
 
 	errno = 0;
 	if (chdir(g_buf) < 0) {

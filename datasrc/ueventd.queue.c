@@ -112,7 +112,7 @@ add_queues(struct pool *pool, char *basepath, struct queues **p)
 			char path[PATH_MAX];
 
 			dbg("Add queue %s", namelist[n]->d_name);
-			sprintf(path, "%s/%s", basepath, namelist[n]->d_name);
+			xconcat(path, sizeof(path), basepath, "/", namelist[n]->d_name, NULL);
 
 			ret->dirs[n].name = strdup(namelist[n]->d_name);
 			ret->dirs[n].wd   = add_watch_directory(pool, path, IN_DONT_FOLLOW | IN_MOVED_TO | IN_CLOSE_WRITE);

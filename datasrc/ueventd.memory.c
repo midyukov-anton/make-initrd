@@ -68,3 +68,30 @@ xasprintf(char **ptr, const char *fmt, ...)
 
 	return *ptr;
 }
+
+char *
+xconcat(char *var, size_t sz, ...)
+{
+	char *p = var;
+	va_list ap;
+
+	if (!var || !sz)
+		return var;
+
+	va_start(ap, sz);
+	while (1) {
+		char *s = va_arg(ap, char *);
+
+		if (!s)
+			break;
+
+		p = stpncpy(p, s, sz - (size_t)(p - var));
+		if (p[0] != '\0') {
+			p[0] = '\0';
+			break;
+		}
+	}
+	va_end(ap);
+
+	return var;
+}
