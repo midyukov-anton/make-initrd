@@ -81,7 +81,7 @@ process_signals(int fd, struct pool *pool, struct queues *queues)
 
 				errno = 0;
 				if ((pid = waitpid(-1, &status, WNOHANG)) <= 0) {
-					if (errno)
+					if (errno && errno != ECHILD)
 						err("waitpid: %m");
 					break;
 				}
