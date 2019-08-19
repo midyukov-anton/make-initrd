@@ -169,15 +169,58 @@ set_environ(const char *fname)
 static void
 unset_environ(char **envp, char *patterns, int invert_match)
 {
-	size_t j, env_sz = 0;
-	char *pattern, *next, *s, **e, *env;
-	int rc;
+	size_t i, j, max = 0, envp_sz = 0;
+	char *pattern, *next, *s, **e, **last, *env;
+	ssize_t *envname;
 
 	if (!patterns)
 		return;
 
+	last = envp;
+	while (last && *last) {
+		envp_sz++;
+		last++;
+	}
+
+	envname = calloc(envp_sz, sizeof(ssize_t));
+
+	if (!envname) {
+		fprintf(stderr, "ERROR: calloc: %m\n");
+		exit(1);
+	}
+
+	e = last;
+	i = envp_sz;
+
+	while (envp <= e) {
+		if (!*e)
+			goto next;
+
+		j = 0;
+		while ((*e)[j] != '=' && (*e)[j] != '\0')
+			j++;
+
+		if ((*e)[j] == '\0')
+			goto next;
+
+		if (j > max)
+			max = j;
+
+		envname[i] = (ssize_t) j;
+next:
+		e--;
+		i--;
+	}
+
+	env = malloc(sizeof(char) * (max + 1));
+
+	if (!env) {
+		fprintf(stderr, "ERROR: malloc: %m\n");
+		exit(1);
+	}
+
 	pattern = s = patterns;
-	next = env = NULL;
+	next = NULL;
 
 	while (pattern) {
 		for (; s[0] != ',' && s[0] != '\0'; s++);
@@ -187,55 +230,59 @@ unset_environ(char **envp, char *patterns, int invert_match)
 		s[0] = '\0';
 		s++;
 
-		e = envp;
-		while (e && *e) e++;
+		e = last;
+		i = envp_sz;
 
 		while (envp <= e) {
-			if (!*e) {
-				e--;
-				continue;
+			if (*e && envname[i] > 0) {
+				j = (size_t) envname[i];
+
+				strncpy(env, *e, j);
+				env[j] = '\0';
+
+				if (!fnmatch(pattern, env, 0))
+					envname[i] *= -1;
 			}
-
-			j = 0;
-			while ((*e)[j] != '=' && (*e)[j] != '\0')
-				j++;
-
-			if ((*e)[j] == '\0') {
-				e--;
-				continue;
-			}
-
-			if (env_sz < j + 1) {
-				env_sz = j + 1;
-				env = realloc(env, env_sz);
-				if (!env) {
-					fprintf(stderr, "ERROR: realloc: %m\n");
-					exit(1);
-				}
-			}
-
-			strncpy(env, *e, j);
-			env[j] = '\0';
-
-			rc = fnmatch(pattern, env, 0);
-
-			if ((!rc && !invert_match) || (rc && invert_match))
-				unsetenv(env);
 
 			e--;
+			i--;
 		}
 
 		pattern = next;
 	}
 
+	e = last;
+	i = envp_sz;
+
+	while (envp <= e) {
+		if (*e) {
+			j = 0;
+
+			if (!invert_match) {
+				if (envname[i] < 0)
+					j = (size_t) (envname[i] * -1);
+			} else if (envname[i] > 0) {
+				j = (size_t) envname[i];
+			}
+
+			if (j > 0) {
+				strncpy(env, *e, j);
+				env[j] = '\0';
+				unsetenv(env);
+			}
+		}
+
+		e--;
+		i--;
+	}
+
+	free(envname);
 	free(env);
 }
 
 int
 main(int argc, char *argv[])
 {
-	char *only = NULL;
-	char *unset = NULL;
 	int o;
 
 	while ((o = getopt(argc, argv, "cf:hp:qsi:u:")) != -1) {
@@ -256,10 +303,10 @@ main(int argc, char *argv[])
 				shell = 1;
 				break;
 			case 'i':
-				only = optarg;
+				unset_environ(environ, optarg, 1);
 				break;
 			case 'u':
-				unset = optarg;
+				unset_environ(environ, optarg, 0);
 				break;
 			case 'h':
 				show_usage(0);
@@ -267,12 +314,6 @@ main(int argc, char *argv[])
 				show_usage(1);
 		}
 	}
-
-	if (only)
-		unset_environ(environ, only, 1);
-
-	if (unset)
-		unset_environ(environ, unset, 0);
 
 	if (optind < argc) {
 		execvp(argv[optind], argv + optind);
