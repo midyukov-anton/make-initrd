@@ -10,6 +10,7 @@ message_time=1
 
 pidfile="/var/run/$PROG.pid"
 logfile="/var/log/$PROG.log"
+queuetimer="/.initrd/uevent/.queue-timer"
 inotifyd='/sbin/inotifyd'
 
 [ "${RDLOG-}" != 'console' ] ||
@@ -26,6 +27,7 @@ if [ "$UEVENT_MODE" = 'server' ]; then
 		fatal "$filterdir: bad directory"
 
 	echo "$$" > "$pidfile"
+	:> "$queuetimer"
 
 	exit_handler()
 	{
@@ -46,6 +48,13 @@ if [ "$UEVENT_MODE" = 'server' ]; then
 	for d in "$filterdir"/*; do
 		[ ! -d "$d" ] || "$0" "n" "${d%/*}" "${d##*/}"
 	done
+
+	{
+		while [ -f "$pidfile" ]; do
+			:> "$queuetimer"
+			sleep 1
+		done
+	} &
 
 	"$inotifyd" "$0" "$pidfile:x" "$filterdir:nd" &
 	wait
@@ -71,7 +80,7 @@ if [ "$UEVENT_MODE" = 'queue-processor' ]; then
 			mkdir -p -- "$ueventdir/$QUEUE"
 
 			:> "$event.pid"
-			"$inotifyd" "$0" "$pidfile:x" "$event.pid:x" "$event:ny" &
+			"$inotifyd" "$0" "$pidfile:x" "$event.pid:x" "$queuetimer:w" "$event:ny" &
 			echo "$!" >"$event.pid"
 			;;
 		d)
@@ -100,10 +109,10 @@ glob()
 	[ -e "$1" ]
 }
 
-glob "$2"/* || exit 0
-
 queuedir="$ueventdir/$QUEUE"
-mv -f -- "$2"/* "$queuedir" 2>/dev/null || exit 0
+
+mv -f -- "$2"/* "$queuedir" 2>/dev/null ||:
+glob "$queuedir"/* || exit 0
 
 message "$QUEUE: Processing events ..."
 

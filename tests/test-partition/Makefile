@@ -14,6 +14,8 @@ TESTCASE_COMMAND = \
 include $(TOPDIR)/tests/Makefile.testsuite
 
 TESTCASE_DRIVES = -drive 'media=disk,index=1,file=$(TESTCASE_DISK0)'
+TESTCASE_DRIVES += -drive 'media=disk,index=2,file=$(CURDIR)/disk1.qcow2'
+TESTCASE_DRIVES += -drive 'media=disk,index=3,file=$(CURDIR)/disk2.qcow2'
 
 QEMU_STAGE0_DRIVES  += $(TESTCASE_DRIVES)
 QEMU_RUNTIME_DRIVES += $(TESTCASE_DRIVES)
