@@ -1,6 +1,6 @@
 #!/bin/sh -efu
 
-#exec /bin/bash
+exec /bin/bash
 
 cd "$HOME/src"
 

@@ -5,9 +5,12 @@ hsh --init --excludedocs
 hsh-install --excludedocs \
 	gcc make git-core expect libkmod-devel zlib-devel bzlib-devel \
 	liblzma-devel libzstd-devel libelf-devel \
-	help2man tar cpio kinit-utils pciutils \
+	help2man tar cpio coreutils pciutils util-linux sfdisk rsync unzip wget \
 	dmsetup lvm2 cryptsetup mdadm e2fsprogs btrfs-progs xfsprogs \
-	bash fdisk strace gzip xz iproute2 chrooted-resolv \
+	bash fdisk strace gzip xz iproute2 chrooted-resolv sysvinit-utils \
+	btrfs-progs dosfstools e2fsprogs jfsutils ntfs-3g reiserfsprogs \
+	squashfs-tools xfsprogs \
+	grub-efi grub-pc extlinux lilo \
 	libtirpc-devel libcrypt-devel
 
 #hsh-install --excludedocs make-initrd-busybox

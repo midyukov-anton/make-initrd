@@ -12,6 +12,7 @@ TESTCASE_COMMAND = \
 	    -append '$(QEMU_STAGE0_CMDLINE)' \
 
 #-drive 'media=disk,file=$(CURDIR)/rootfs-altlinux-20200622.qcow2'
+QEMU_STAGE0_DRIVES += -drive media=disk,file=$(CURDIR)/rootfs-altlinux-20210419.qcow2
 
 build: qemu-stage0
 	@$(TRAVIS_START) "build.make-initrd"

@@ -1,0 +1,27 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:            kickstart
+# Required-Start:      network-up udevd ueventd
+# Should-Start:
+# Required-Stop:
+# Should-Stop:
+# Default-Start:       3 4 5
+# Default-Stop:
+# Short-Description:   Runs kickstart script
+# Description:         Runs kickstart script
+# X-LFS-Provided-By:   LFS
+### END INIT INFO
+
+[ "$1" = start ] || exit 0
+
+. /.initrd/initenv
+
+[ -n "${KSFILE-}" ] || exit 0
+
+. /etc/init.d/functions
+
+[ -z "${KSFILE##/*}" ] ||
+	KSFILE="/etc/ks.conf.d/$KSFILE"
+
+[ ! -s "$KSFILE" ] ||
+	action "Running kickstart script $KSFILE" /bin/kickstart "$KSFILE"
