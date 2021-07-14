@@ -39,6 +39,13 @@ ifeq "$(MAKECMDGOALS)" 'guess-modules'
 AUTODETECT := root device
 endif
 
+ifneq "$(wildcard $(GUESSDIR)/guessed-prev.mk)" ''
+include $(GUESSDIR)/guessed-prev.mk
+IGNORE_DEPMOD := 1
+ALL_ACTIVE_FEATURES  := $(get-all-active-features)
+
+else
+
 unknown_features = \
 	$(filter-out \
 		$(notdir $(wildcard $(FEATURESDIR)/*)), \
@@ -53,6 +60,8 @@ deprecated_features = $(filter $(DEPRECATED_FEATURES),$(sort $(FEATURES)))
 ifneq "$(deprecated_features)" ''
 $(info WARNING: Deprecated features found and will do nothing: $(deprecated_features))
 endif
+
+endif # $(GUESSDIR)/guessed-prev.mk
 
 GUESS_MODULES = \
 	$(sort $(if $(findstring all,$(AUTODETECT)), \
@@ -84,6 +93,14 @@ guess: pre-guess
 	$V printf '============================================================\n\n' >&2
 	@$(TOOLSDIR)/guess-config > $(GUESSDIR)/guessed.mk
 	$V printf '============================================================\n\n' >&2
+	@if cmp -s $(GUESSDIR)/guessed.mk $(GUESSDIR)/guessed-prev.mk ; then\
+		$(MSG) Complete guessing config;\
+		rm -rf $(GUESSDIR)/guessed-prev.mk;\
+	else\
+		$(MSG) Changes in the new guessed config file found;\
+		mv $(GUESSDIR)/guessed.mk $(GUESSDIR)/guessed-prev.mk;\
+		$(MAKE) $(MFLAGS) -f @projectdir@/mk/make-initrd.mk guess;\
+	fi
 
 endif # MAKECMDGOALS = guess guess-config guess-modules
 
@@ -133,11 +150,9 @@ genimage: install
 	@$(MSG) "Image is saved as $(IMAGEFILE)"
 	@echo
 
-ALL_FEATURES         := $(sort $(filter-out ,$(call expand-features,FEATURE-REQUIRES,$(FEATURES))))
-ALL_DISABLE_FEATURES := $(sort $(filter-out ,$(DISABLE_FEATURES) $(call expand-disabled-features,$(ALL_FEATURES))))
-ALL_ACTIVE_FEATURES  := $(sort $(filter-out \
-	$(call expand-list,FEATURE-REQUIRED,$(DEPRECATED_FEATURES) $(ALL_DISABLE_FEATURES)),\
-	$(ALL_FEATURES)))
+ALL_FEATURES         := $(get-all-features)
+ALL_DISABLE_FEATURES := $(get-all-disable-features)
+ALL_ACTIVE_FEATURES  := $(get-all-active-features)
 
 ifdef VERBOSE
 $(info FEATURES              : $(sort $(FEATURES)))
