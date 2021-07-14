@@ -104,4 +104,9 @@ slaves() {
 	done
 }
 
+is_active_feature() {
+	echo "${ALL_ACTIVE_FEATURES-}" | grep -w "$1" &> /dev/null
+	return $?
+}
+
 fi #__included_make_initrd_guess_functions
