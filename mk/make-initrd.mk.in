@@ -42,7 +42,7 @@ endif
 ifneq "$(wildcard $(GUESSDIR)/guessed-prev.mk)" ''
 include $(GUESSDIR)/guessed-prev.mk
 IGNORE_DEPMOD := 1
-ALL_ACTIVE_FEATURES  := $(get-all-active-features)
+ALL_ACTIVE_FEATURES := $(get-all-active-features)
 
 else
 
@@ -63,22 +63,29 @@ endif
 
 endif # $(GUESSDIR)/guessed-prev.mk
 
+GUESS_CONFIG_MODULES = \
+		$(foreach mod1, \
+			$(if $(findstring all,$(AUTODETECT)), \
+				$(realpath $(wildcard $(DETECTDIR)/*)), \
+				$(foreach mod,$(AUTODETECT),$(realpath $(DETECTDIR)/$(mod)))), \
+			$(wildcard $(mod1)/config.mk))
+
 GUESS_MODULES = \
-	$(sort $(if $(findstring all,$(AUTODETECT)), \
-		$(realpath $(wildcard $(DETECTDIR)/*)), \
-		$(foreach mod,$(AUTODETECT),$(realpath $(DETECTDIR)/$(mod)))))
+	$(sort $(filter-out $(sort $(PASSED_GUESS_MODULES)), \
+		$(if $(findstring all,$(AUTODETECT)), \
+			$(notdir $(wildcard $(DETECTDIR)/*)), \
+			$(AUTODETECT))))
+
+-include $(GUESS_CONFIG_MODULES)
 
 ifneq "$(GUESS_MODULES)" ''
-include \
-	$(wildcard $(foreach mod,$(GUESS_MODULES),$(mod)/config.mk))
-
 GUESS_DEVICE_SCRIPTS = $(call wildcard-features,guess/device)
 GUESS_FSTYPE_SCRIPTS = $(call wildcard-features,guess/fstype)
 
 include \
 	$(sort $(filter-out \
 		$(foreach exl,$(DISABLE_GUESS),$(realpath $(exl:%=$(DETECTDIR)/%/rules.mk))), \
-		$(foreach mod,$(GUESS_MODULES),$(realpath $(mod)/rules.mk))))
+		$(foreach mod,$(GUESS_MODULES),$(realpath $(DETECTDIR)/$(mod)/rules.mk))))
 endif # GUESS_MODULES
 
 .PHONY: pre-guess guess
@@ -90,6 +97,8 @@ pre-guess: depmod-host check-for-root
 	done
 
 guess: pre-guess
+	@echo "GUESS_MODULES        = $(notdir $(GUESS_MODULES))"
+	@echo "PASSED_GUESS_MODULES = $(notdir $(PASSED_GUESS_MODULES))"
 	$V printf '============================================================\n\n' >&2
 	@$(TOOLSDIR)/guess-config > $(GUESSDIR)/guessed.mk
 	$V printf '============================================================\n\n' >&2
@@ -99,7 +108,9 @@ guess: pre-guess
 	else\
 		$(MSG) Changes in the new guessed config file found;\
 		mv $(GUESSDIR)/guessed.mk $(GUESSDIR)/guessed-prev.mk;\
-		$(MAKE) $(MFLAGS) -f @projectdir@/mk/make-initrd.mk guess;\
+		$(MAKE) $(MFLAGS) -f @projectdir@/mk/make-initrd.mk guess \
+			GUESS_SECONDARY=yes \
+			PASSED_GUESS_MODULES+="$(GUESS_MODULES)";\
 	fi
 
 endif # MAKECMDGOALS = guess guess-config guess-modules

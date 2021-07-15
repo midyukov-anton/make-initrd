@@ -1,7 +1,0 @@
-#!/bin/bash -efu
-
-. guess-functions
-
-if is_active_feature "sshfsroot"; then
-	guess_variable GUESS_NET_IFACE all
-fi

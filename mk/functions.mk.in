@@ -119,6 +119,12 @@ require = \
 			$(abspath $(n:%=$(FEATURESDIR)/%/rules.mk))), \
 			$(call include-feature,$(n),$(inc))))
 
+# $(call if-active-feature,<name> [<name1> ...])
+if-active-feature = $(if $(1),$(filter $(1),$(ALL_ACTIVE_FEATURES)))
+
+# $(call if-guess-passed,<name> [<name1> ...])
+if-guess-passed = $(if $(1),$(filter $(1),$(notdir $(PASSED_GUESS_MODULES))))
+
 # $(call if_feature,<name> [<name1> ...])
 # Return a list of features without obsolete and disabled features.
 if_feature = $(if $(1),$(filter-out $(DEPRECATED_FEATURES) $(DISABLE_FEATURES) $(ALL_DISABLE_FEATURES),$(1)))
